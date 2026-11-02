@@ -1,147 +1,203 @@
-/* ================================================================
-   董芸辰 個人網站 — script.js（互動加分功能）
-   ----------------------------------------------------------------
-   ※ 這個版本的網站「沒有 JS 也能正常使用」：
-     圖示、勾選清單、分頁切換、手機選單、評論分析都由 HTML + CSS 完成。
-   ※ 這支 JS 只負責以下加分功能：
+/* =====================================================================
+   董芸辰 個人網站 — script.js
+   ---------------------------------------------------------------------
+   這一版的重點：網站「沒有這個檔案也能正常使用」。
+   圖示、打勾、分頁、手機選單都已經用 HTML + CSS 完成，
+   這裡只負責加分功能：
      1. 自動更新頁尾年份
      2. 深色 / 淺色模式切換（並記住選擇）
-     3. 手機選單：點了連結後自動收起
-     4. 導覽列：往下捲時加陰影、標示目前所在區塊
-     5. 研究所期望清單：記住勾選狀態（重新整理後還在）
-   ※ 每個功能都包在 try...catch 裡，就算某一段出錯，也不會影響其他功能。
-   ================================================================ */
+     3. 手機選單：點連結後自動收起、支援鍵盤
+     4. 導覽列：往下捲加陰影、標示目前所在區塊
+     5. 記住「研究所生涯期望」的打勾狀態
+   每個功能都用 safe() 包起來：就算其中一個出錯，其他功能照常運作。
+   打開瀏覽器的「開發人員工具 → Console」可以看到哪個功能出錯。
+   ===================================================================== */
 
 (function () {
-    'use strict'; // 嚴格模式：幫忙抓出常見寫法錯誤
+    'use strict';
 
-    /* ------------------------------------------------------------
-       小工具：安全地讀寫瀏覽器儲存空間（localStorage）
-       有些情況（無痕模式、直接開本機檔案的某些瀏覽器）會禁止儲存，
-       用 try...catch 包起來，失敗時就安靜地略過。
-       ------------------------------------------------------------ */
+    /* ---------------------------------------------------------------
+       小工具 1：safe(名稱, 函式)
+       執行某個功能；如果出錯，只在 Console 顯示警告，不會讓整支程式停掉。
+       --------------------------------------------------------------- */
+    function safe(name, fn) {
+        try {
+            fn();
+        } catch (err) {
+            console.warn('[個人網站] 「' + name + '」功能發生錯誤：', err);
+        }
+    }
+
+    /* ---------------------------------------------------------------
+       小工具 2：store
+       安全地讀寫 localStorage（瀏覽器的小型儲存空間）。
+       無痕模式或瀏覽器封鎖儲存時，讀取回傳 null、寫入直接略過，不會報錯。
+       --------------------------------------------------------------- */
     var store = {
         get: function (key) {
             try { return window.localStorage.getItem(key); } catch (e) { return null; }
         },
         set: function (key, value) {
-            try { window.localStorage.setItem(key, value); } catch (e) { /* 無法儲存就略過 */ }
+            try { window.localStorage.setItem(key, value); } catch (e) { /* 無法儲存就算了 */ }
         }
     };
 
-    /* ------------------------------------------------------------
-       1. 頁尾年份：自動換成今年
-       ------------------------------------------------------------ */
-    try {
+
+    /* ===============================================================
+       1. 頁尾年份：把 HTML 寫死的 2026 換成今年
+       =============================================================== */
+    safe('年份', function () {
         var yearEl = document.getElementById('year');
         if (yearEl) yearEl.textContent = new Date().getFullYear();
-    } catch (e) { console.warn('年份更新失敗：', e); }
+    });
 
-    /* ------------------------------------------------------------
+
+    /* ===============================================================
        2. 深色 / 淺色模式
-       - 預設跟隨電腦／手機的系統設定
-       - 按右上角按鈕後，在 <html> 加上 data-theme="dark" 或 "light"
-         （style.css 會依照這個屬性換顏色）
-       - 選擇會存起來，下次打開網站時沿用
-       ------------------------------------------------------------ */
-    try {
-        var root = document.documentElement; // 就是 <html> 元素
+       - 在 <html> 加上 data-theme="dark" 或 "light"，CSS 就會切換配色
+       - 選擇存在 localStorage，下次打開網站會記得
+       - 沒按過按鈕時，跟隨系統設定（CSS 的 prefers-color-scheme 負責）
+       =============================================================== */
+    safe('深色模式', function () {
+        var root = document.documentElement;
+        var btn = document.getElementById('themeToggle');
+
+        // (1) 讀取上次的選擇
         var saved = store.get('yc-theme');
         if (saved === 'dark' || saved === 'light') {
             root.setAttribute('data-theme', saved);
         }
 
-        // 判斷「現在」是不是深色
-        var isDark = function () {
+        // (2) 判斷「現在」是不是深色
+        function isDark() {
             var t = root.getAttribute('data-theme');
             if (t) return t === 'dark';
             return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        };
+        }
 
-        var themeBtn = document.getElementById('themeToggle');
-        if (themeBtn) {
-            themeBtn.addEventListener('click', function () {
+        // (3) 按下按鈕：切換並儲存
+        if (btn) {
+            btn.addEventListener('click', function () {
                 var next = isDark() ? 'light' : 'dark';
                 root.setAttribute('data-theme', next);
                 store.set('yc-theme', next);
             });
         }
-    } catch (e) { console.warn('深色模式設定失敗：', e); }
+    });
 
-    /* ------------------------------------------------------------
-       3. 手機選單：點了選單裡的連結後，自動把選單收起來
-       （開關本身是 checkbox，由 CSS 控制；這裡只是把它取消勾選）
-       ------------------------------------------------------------ */
-    try {
-        var navToggle = document.getElementById('navToggle');
-        var menuLinks = document.querySelectorAll('#mobileMenu a');
-        for (var i = 0; i < menuLinks.length; i++) {
-            menuLinks[i].addEventListener('click', function () {
-                if (navToggle) navToggle.checked = false;
+
+    /* ===============================================================
+       3. 手機選單
+       開 / 關本身由 HTML 的 checkbox（#menuToggle）+ CSS 完成，
+       這裡補上兩個體驗：
+         (a) 點了選單裡的連結後，自動把選單收起來
+         (b) 用鍵盤 Tab 到漢堡按鈕時，按 Enter 或空白鍵也能開關
+       =============================================================== */
+    safe('手機選單', function () {
+        var toggle = document.getElementById('menuToggle');
+        var menuBtn = document.querySelector('.menu-btn');
+        var menu = document.getElementById('mobileMenu');
+        if (!toggle || !menu) return;
+
+        // (a) 點連結 → 取消勾選 → 選單收起
+        var links = menu.querySelectorAll('a');
+        for (var i = 0; i < links.length; i++) {
+            links[i].addEventListener('click', function () {
+                toggle.checked = false;
+                syncAria();
             });
         }
-        // 螢幕變寬（例如手機轉橫向）時，也把選單收起來
-        window.addEventListener('resize', function () {
-            if (navToggle && window.innerWidth >= 768) navToggle.checked = false;
-        });
-    } catch (e) { console.warn('手機選單設定失敗：', e); }
 
-    /* ------------------------------------------------------------
+        // (b) 鍵盤 Enter / 空白鍵
+        if (menuBtn) {
+            menuBtn.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggle.checked = !toggle.checked;
+                    syncAria();
+                }
+            });
+        }
+
+        // 讓螢幕閱讀器知道選單現在是開還是關
+        function syncAria() {
+            if (menuBtn) menuBtn.setAttribute('aria-expanded', String(toggle.checked));
+        }
+        toggle.addEventListener('change', syncAria);
+        syncAria();
+    });
+
+
+    /* ===============================================================
        4. 導覽列效果
-       - 往下捲超過 8px：導覽列加上陰影（.scrolled）
-       - 捲到哪個區塊，上方對應的選單文字就變綠色並加底線（.active）
-       ------------------------------------------------------------ */
-    try {
+         (a) 頁面往下捲超過 8px，導覽列加上陰影（.scrolled）
+         (b) 根據目前看到的區塊，把對應的導覽連結加上 .active（底線 + 綠色）
+       =============================================================== */
+    safe('導覽列效果', function () {
         var navbar = document.getElementById('navbar');
         var navLinks = document.querySelectorAll('.nav-links a');
-        var sectionIds = ['about', 'skills', 'research', 'diy', 'contact'];
+        var ids = ['about', 'skills', 'research', 'diy', 'contact'];
+
+        // 只留下頁面上真的存在的區塊，避免找不到元素而出錯
         var sections = [];
-        for (var s = 0; s < sectionIds.length; s++) {
-            var el = document.getElementById(sectionIds[s]);
+        for (var i = 0; i < ids.length; i++) {
+            var el = document.getElementById(ids[i]);
             if (el) sections.push(el);
         }
 
-        var onScroll = function () {
-            if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 8);
+        function onScroll() {
+            // (a) 陰影
+            if (navbar) {
+                if (window.scrollY > 8) navbar.classList.add('scrolled');
+                else navbar.classList.remove('scrolled');
+            }
 
-            // 找出「最後一個頂端已經捲過畫面 35% 位置」的區塊
+            // (b) 找出「頂端已經捲過畫面 35% 高度」的最後一個區塊
             var current = '';
             var line = window.innerHeight * 0.35;
-            for (var k = 0; k < sections.length; k++) {
-                if (sections[k].getBoundingClientRect().top <= line) current = sections[k].id;
+            for (var j = 0; j < sections.length; j++) {
+                if (sections[j].getBoundingClientRect().top <= line) current = sections[j].id;
             }
-            // 捲到最底部時，強制標示最後一個區塊（聯絡方式）
-            if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2 && sections.length) {
-                current = sections[sections.length - 1].id;
+            for (var k = 0; k < navLinks.length; k++) {
+                var match = navLinks[k].getAttribute('href') === '#' + current;
+                navLinks[k].classList.toggle('active', match);
             }
-
-            for (var n = 0; n < navLinks.length; n++) {
-                var href = navLinks[n].getAttribute('href');
-                navLinks[n].classList.toggle('active', href === '#' + current);
-            }
-        };
+        }
 
         window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll(); // 一打開頁面就先執行一次
-    } catch (e) { console.warn('導覽列效果設定失敗：', e); }
+        window.addEventListener('resize', onScroll);
+        onScroll(); // 一載入就先執行一次
+    });
 
-    /* ------------------------------------------------------------
-       5. 研究所期望清單：記住勾選狀態
-       （勾選本身是原生 checkbox，不靠 JS 也能勾；這裡只負責「記住」）
-       ------------------------------------------------------------ */
-    try {
-        var goals = document.querySelectorAll('.goal-input');
+
+    /* ===============================================================
+       5. 記住「研究所生涯期望」的打勾狀態
+       打勾本身是 HTML checkbox，本來就能點；
+       這裡把勾選結果存起來，重新整理或下次打開時還會在。
+       存的格式：{"goal-1":true,"goal-2":false,...}
+       =============================================================== */
+    safe('目標打勾記憶', function () {
+        var inputs = document.querySelectorAll('.goal-input');
+        if (!inputs.length) return;
+
+        // (1) 讀取舊資料
         var state = {};
-        try { state = JSON.parse(store.get('yc-goals') || '{}') || {}; } catch (e) { state = {}; }
+        try {
+            state = JSON.parse(store.get('yc-goals') || '{}') || {};
+        } catch (e) {
+            state = {};
+        }
 
-        for (var g = 0; g < goals.length; g++) {
-            var box = goals[g];
-            if (state[box.id]) box.checked = true; // 還原上次的勾選
+        // (2) 套用到畫面，並監聽之後的變化
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i];
+            if (state[input.id] === true) input.checked = true;
 
-            box.addEventListener('change', function (ev) {
-                state[ev.target.id] = ev.target.checked;
+            input.addEventListener('change', function (e) {
+                state[e.target.id] = e.target.checked;
                 store.set('yc-goals', JSON.stringify(state));
             });
         }
-    } catch (e) { console.warn('勾選清單設定失敗：', e); }
+    });
+
 })();
