@@ -1,501 +1,618 @@
 <!DOCTYPE html>
-<!--
-=====================================================================
-  董芸辰 個人網站 — index.html
-=====================================================================
-  【放到 GitHub Pages 的方式】
-  1. repository 根目錄放這三個檔案（檔名全部小寫、一字不差）：
-        index.html
-        style.css
-        script.js
-  2. GitHub 的檔名「有分大小寫」：Style.css、Script.js、script.JS
-     都會讀不到！
-  3. 到 Settings → Pages → Branch 選 main、資料夾選 /(root) → Save。
-  4. 網址：https://你的帳號.github.io/repository名稱/
-
-  【這一版的設計原則】
-  - 圖示：直接寫在 HTML 裡的 SVG（下方 <svg class="sprite">），
-          不需要 JS、不需要 Font Awesome，一定看得到。
-  - 打勾清單、技能分頁、手作分頁、評論分析、手機選單：
-          全部用原生 <input type="checkbox/radio"> + CSS 完成，
-          就算 script.js 沒載入也能正常操作。
-  - script.js 只負責「加分功能」：深色模式、記住打勾、導覽高亮等。
-=====================================================================
--->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <!-- 讓手機正確縮放 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>董芸辰 Yun-Chen Dong | 個人作品集 Portfolio</title>
-    <meta name="description" content="董芸辰，國立東華大學資訊管理學系碩士生。研究興趣：大型語言模型、文字探勘與顧客評論分析。">
-
-    <!-- Google 字體（中文 Noto Sans TC + 英文 Outfit） -->
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- 自己的樣式表：用 ./ 表示「和 index.html 同一個資料夾」 -->
-    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cream: {
+                            50: '#FDFBF7',
+                            100: '#F7F3EB',
+                            200: '#EFE7D8',
+                            300: '#E2D3BE',
+                        },
+                        warmgray: {
+                            50: '#F9F8F6',
+                            100: '#F2EFF',
+                            200: '#E5E0DA',
+                            600: '#756E65',
+                            800: '#3D3833',
+                            900: '#262320',
+                        },
+                        pastel: {
+                            blue: '#D3E4CD',
+                            sage: '#ADC2A9',
+                            rose: '#E8C5C8',
+                            lavender: '#D6C7B2',
+                            accent: '#82977D'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .craft-pattern {
+            background-image: radial-gradient(#d6c7b2 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+        }
+        .dark .craft-pattern {
+            background-image: radial-gradient(#3d3833 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+        }
+        .glass-card {
+            backdrop-filter: blur(8px);
+            background: rgba(253, 251, 247, 0.75);
+        }
+        .dark .glass-card {
+            background: rgba(38, 35, 32, 0.85);
+        }
+    </style>
 </head>
-<body>
+<body class="bg-cream-50 text-warmgray-800 dark:bg-warmgray-900 dark:text-cream-100 transition-colors duration-300 font-sans craft-pattern min-h-screen flex flex-col">
 
-<!-- =================================================================
-     圖示庫（SVG Sprite）
-     每個 <symbol> 是一個圖示，之後用 <svg class="icon"><use href="#i-名稱"/></svg> 叫出來。
-     這段本身不會顯示在畫面上（class="sprite" 會把它藏起來）。
-     ================================================================= -->
-<svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
-    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
-    <symbol id="i-bars" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
-    <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
-    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></symbol>
-    <symbol id="i-graduate" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></symbol>
-    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></symbol>
-    <symbol id="i-list" viewBox="0 0 24 24"><path d="M10 6h11M10 12h11M10 18h11"/><path d="m3 6 1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></symbol>
-    <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3z"/></symbol>
-    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/></symbol>
-    <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></symbol>
-    <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M12 21v-10"/><path d="M12 11C12 7 9 4 4 4c0 4 3 7 8 7z"/><path d="M12 13c0-3 2.5-6 8-6 0 4-3 6-8 6z"/></symbol>
-    <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
-    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
-    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16v-4M12 16V8M17 16v-7"/></symbol>
-    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
-    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
-    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></symbol>
-    <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></symbol>
-    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10z"/><path d="M2 21c0-3 1.9-5.4 5.2-6"/></symbol>
-    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
-    <symbol id="i-microscope" viewBox="0 0 24 24"><path d="M6 18h8M3 22h18M14 22a7 7 0 1 0 0-14h-1M9 14h2M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2zM12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></symbol>
-    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
-    <symbol id="i-cake" viewBox="0 0 24 24"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1M2 21h20M7 8v3M12 8v3M17 8v3M7 4h.01M12 4h.01M17 4h.01"/></symbol>
-    <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20M12 22 8 9l3-6M12 22l4-13-3-6"/></symbol>
-    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 20h20"/></symbol>
-    <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4"/></symbol>
-    <symbol id="i-cookie" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5h.01M16 15.5h.01M12 12h.01M11 17h.01M7 14h.01"/></symbol>
-    <symbol id="i-shapes" viewBox="0 0 24 24"><path d="M8.3 10a.7.7 0 0 1-.6-1.1l3.7-6a.7.7 0 0 1 1.2 0l3.7 6a.7.7 0 0 1-.6 1.1z"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/></symbol>
-    <symbol id="i-tv" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="m17 2-5 5-5-5"/></symbol>
-    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
-</svg>
+    <!-- Navigation Bar -->
+    <header class="fixed top-0 left-0 w-full z-50 glass-card border-b border-cream-200 dark:border-warmgray-800 transition-all duration-300" id="navbar">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="#hero" class="flex items-center space-x-2 text-lg font-bold text-warmgray-900 dark:text-cream-50">
+                    <span class="w-8 h-8 rounded-full bg-pastel-sage flex items-center justify-center text-white font-serif text-sm shadow-sm">董</span>
+                    <span>董芸辰 <span class="text-xs text-warmgray-600 dark:text-cream-300 font-normal ml-1">Yun-Chen</span></span>
+                </a>
 
-    <!-- =================================================================
-         導覽列（固定在最上方）
-         ================================================================= -->
-    <header class="navbar" id="navbar">
-        <!-- 手機選單開關：一個隱藏的 checkbox。
-             點下面的 <label for="menuToggle"> 就會勾選 / 取消，
-             CSS 依照勾選狀態顯示或隱藏選單 → 不需要 JS 也能用。 -->
-        <input type="checkbox" id="menuToggle" class="menu-toggle" aria-hidden="true" tabindex="-1">
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex space-x-8 text-sm font-medium">
+                    <a href="#about" class="text-warmgray-600 hover:text-pastel-accent dark:text-cream-200 dark:hover:text-pastel-sage transition-colors">關於我</a>
+                    <a href="#skills" class="text-warmgray-600 hover:text-pastel-accent dark:text-cream-200 dark:hover:text-pastel-sage transition-colors">專業技能</a>
+                    <a href="#research" class="text-warmgray-600 hover:text-pastel-accent dark:text-cream-200 dark:hover:text-pastel-sage transition-colors">研究興趣</a>
+                    <a href="#diy" class="text-warmgray-600 hover:text-pastel-accent dark:text-cream-200 dark:hover:text-pastel-sage transition-colors">手作與創作</a>
+                    <a href="#contact" class="text-warmgray-600 hover:text-pastel-accent dark:text-cream-200 dark:hover:text-pastel-sage transition-colors">聯絡方式</a>
+                </nav>
 
-        <div class="container nav-inner">
-            <!-- Logo：點了回到最上方 -->
-            <a href="#hero" class="logo">
-                <span class="logo-mark">董</span>
-                <span>董芸辰 <small>Yun-Chen</small></span>
-            </a>
+                <!-- Actions / Controls -->
+                <div class="flex items-center space-x-3">
+                    <button id="themeToggle" aria-label="Toggle Theme" class="p-2 rounded-full hover:bg-cream-200 dark:hover:bg-warmgray-800 transition-colors text-warmgray-800 dark:text-cream-100">
+                        <i class="fa-solid fa-moon dark:hidden"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-amber-300"></i>
+                    </button>
 
-            <!-- 電腦版導覽連結（寬度 ≥ 768px 才顯示） -->
-            <nav class="nav-links" aria-label="主要導覽">
-                <a href="#about">關於我</a>
-                <a href="#skills">專業技能</a>
-                <a href="#research">研究興趣</a>
-                <a href="#diy">手作與創作</a>
-                <a href="#contact">聯絡方式</a>
-            </nav>
-
-            <div class="nav-actions">
-                <!-- 深色模式按鈕（需要 script.js；沒有 JS 時會自動跟隨系統的深淺色） -->
-                <button id="themeToggle" class="icon-btn" type="button" aria-label="切換深色 / 淺色模式">
-                    <svg class="icon show-light"><use href="#i-moon"/></svg>
-                    <svg class="icon show-dark sun"><use href="#i-sun"/></svg>
-                </button>
-
-                <!-- 手機版漢堡選單按鈕（寬度 < 768px 才顯示） -->
-                <label for="menuToggle" class="icon-btn menu-btn" role="button" tabindex="0" aria-label="開啟 / 關閉選單" aria-controls="mobileMenu">
-                    <svg class="icon icon-open"><use href="#i-bars"/></svg>
-                    <svg class="icon icon-close"><use href="#i-close"/></svg>
-                </label>
+                    <!-- Mobile Menu Button -->
+                    <button id="mobileMenuBtn" aria-label="Open Mobile Menu" class="md:hidden p-2 rounded-lg text-warmgray-600 dark:text-cream-200 hover:bg-cream-200 dark:hover:bg-warmgray-800 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- 手機版下拉選單 -->
-        <nav id="mobileMenu" class="mobile-menu" aria-label="手機導覽">
-            <a href="#about">關於我</a>
-            <a href="#skills">專業技能</a>
-            <a href="#research">研究興趣</a>
-            <a href="#diy">手作與創作</a>
-            <a href="#contact">聯絡方式</a>
-        </nav>
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobileMenu" class="hidden md:hidden border-b border-cream-200 dark:border-warmgray-800 bg-cream-50 dark:bg-warmgray-900 px-4 pt-2 pb-4 space-y-2">
+            <a href="#about" class="block py-2 text-warmgray-600 dark:text-cream-200 hover:text-pastel-accent">關於我</a>
+            <a href="#skills" class="block py-2 text-warmgray-600 dark:text-cream-200 hover:text-pastel-accent">專業技能</a>
+            <a href="#research" class="block py-2 text-warmgray-600 dark:text-cream-200 hover:text-pastel-accent">研究興趣</a>
+            <a href="#diy" class="block py-2 text-warmgray-600 dark:text-cream-200 hover:text-pastel-accent">手作與創作</a>
+            <a href="#contact" class="block py-2 text-warmgray-600 dark:text-cream-200 hover:text-pastel-accent">聯絡方式</a>
+        </div>
     </header>
 
-    <main>
-        <!-- =================================================================
-             Hero 主視覺
-             ================================================================= -->
-        <section id="hero" class="hero container">
-            <div class="hero-text">
-                <div class="badge">
-                    <span class="pulse-dot"></span>
+    <!-- Hero Section -->
+    <section id="hero" class="pt-32 pb-20 md:pt-40 md:pb-28 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex flex-col justify-center">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            
+            <div class="md:col-span-8 space-y-6 text-center md:text-left">
+                <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-cream-200 dark:bg-warmgray-800 text-xs font-medium text-warmgray-600 dark:text-cream-200">
+                    <span class="w-2 h-2 rounded-full bg-pastel-accent animate-pulse"></span>
                     <span>國立東華大學 資訊管理學系 碩士生</span>
                 </div>
+                
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-warmgray-900 dark:text-cream-50 leading-tight">
+                    你好，我是 <span class="text-pastel-accent dark:text-pastel-sage">董芸辰</span>
+                </h1>
+                
+                <p class="text-lg sm:text-xl text-warmgray-600 dark:text-cream-300 font-light max-w-2xl">
+                    「結合創意與資訊科技，從數據與人性觀察中，讓科技更貼近日常與智慧化生活。」
+                </p>
 
-                <h1>你好，我是 <span class="accent">董芸辰</span></h1>
-
-                <p class="hero-quote">「結合創意與資訊科技，從數據與人性觀察中，讓科技更貼近日常與智慧化生活。」</p>
-
-                <div class="hero-buttons">
-                    <a href="#about" class="btn btn-dark">關於我 <svg class="icon"><use href="#i-arrow-down"/></svg></a>
-                    <a href="#skills" class="btn btn-soft">專業技能</a>
-                    <a href="#research" class="btn btn-outline">研究目標</a>
+                <div class="pt-4 flex flex-wrap justify-center md:justify-start gap-3">
+                    <a href="#about" class="px-6 py-3 rounded-xl bg-warmgray-800 dark:bg-cream-100 text-cream-50 dark:text-warmgray-900 font-medium hover:opacity-90 transition-all shadow-md flex items-center gap-2">
+                        <span>關於我</span>
+                        <i class="fa-solid fa-arrow-down text-xs"></i>
+                    </a>
+                    <a href="#skills" class="px-6 py-3 rounded-xl bg-cream-200 dark:bg-warmgray-800 text-warmgray-800 dark:text-cream-100 font-medium hover:bg-cream-300 dark:hover:bg-warmgray-700 transition-all">
+                        專業技能
+                    </a>
+                    <a href="#research" class="px-6 py-3 rounded-xl border border-cream-300 dark:border-warmgray-700 text-warmgray-700 dark:text-cream-200 hover:bg-cream-100 dark:hover:bg-warmgray-800 transition-all">
+                        研究目標
+                    </a>
                 </div>
             </div>
 
-            <!-- 右側大頭貼圓框（之後想放照片，可把 avatar-icon 換成 <img src="photo.jpg">） -->
-            <div class="hero-avatar">
-                <div class="avatar-ring">
-                    <div class="avatar-inner">
-                        <div class="avatar-icon"><svg class="icon"><use href="#i-graduate"/></svg></div>
-                        <h3>董芸辰</h3>
-                        <p>NDHU IM Master Student</p>
-                        <span class="route-tag">高雄 ➔ 花蓮</span>
+            <div class="md:col-span-4 flex justify-center">
+                <div class="relative w-56 h-56 sm:w-64 sm:h-64 rounded-full bg-gradient-to-tr from-pastel-rose via-cream-200 to-pastel-blue p-2 shadow-xl">
+                    <div class="w-full h-full rounded-full bg-cream-100 dark:bg-warmgray-800 flex flex-col items-center justify-center p-6 text-center border-2 border-dashed border-warmgray-200 dark:border-warmgray-700">
+                        <div class="w-20 h-20 rounded-full bg-pastel-sage/20 flex items-center justify-center text-pastel-accent text-3xl mb-3">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <h3 class="font-bold text-warmgray-800 dark:text-cream-100">董芸辰</h3>
+                        <p class="text-xs text-warmgray-600 dark:text-cream-300 mt-1">NDHU IM Master Student</p>
+                        <span class="mt-3 text-[10px] px-2 py-0.5 rounded bg-cream-200 dark:bg-warmgray-700 text-warmgray-600 dark:text-cream-200">高雄 ➔ 花蓮</span>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- =================================================================
-             關於我
-             ================================================================= -->
-        <section id="about" class="band">
-            <div class="container">
-                <div class="section-head">
-                    <h2>關於我 About Me</h2>
-                    <div class="bar"></div>
-                    <p>來自高雄，一位冷靜穩重、對熱愛事物充滿溫暖執著的資管研究生。</p>
+        </div>
+    </section>
+
+    <!-- About Me Section -->
+    <section id="about" class="py-20 bg-cream-100/60 dark:bg-warmgray-800/40 border-y border-cream-200 dark:border-warmgray-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h2 class="text-3xl font-bold text-warmgray-900 dark:text-cream-50">關於我 About Me</h2>
+                <div class="w-12 h-1 bg-pastel-accent mx-auto mt-3 rounded-full"></div>
+                <p class="mt-4 text-warmgray-600 dark:text-cream-300 text-sm">
+                    來自高雄，一位冷靜穩重、對熱愛事物充滿溫暖執著的資管研究生。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1: Personality -->
+                <div class="bg-cream-50 dark:bg-warmgray-900 p-8 rounded-2xl border border-cream-200 dark:border-warmgray-800 custom-shadow hover:-translate-y-1 transition-transform">
+                    <div class="w-12 h-12 rounded-xl bg-pastel-rose/30 flex items-center justify-center text-warmgray-800 dark:text-cream-100 mb-6 text-xl">
+                        <i class="fa-solid fa-compass"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-warmgray-900 dark:text-cream-50">個性與特質</h3>
+                    <p class="text-sm text-warmgray-600 dark:text-cream-300 leading-relaxed">
+                        初次見面時給人冷靜沉穩的印象，熟悉後會發現我是個單純、細心且負責任的人。對自己認同與熱愛的事物充滿極高熱忱，能按部就班推進目標，兼具獨立思考與抗壓適應能力。
+                    </p>
                 </div>
 
-                <!-- 成長背景 & 做事態度（兩欄文字） -->
-                <div class="story">
-                    <article class="story-block">
-                        <span class="eyebrow"><svg class="icon"><use href="#i-home"/></svg> 成長背景</span>
-                        <p>我來自高雄，個性偏內向。剛認識時常被說看起來有點冷漠，熟悉後朋友們常形容我單純、穩重。在家中我是最小的成員，家人給予我充分的信任與支持，讓我學會為自己的選擇負責，勇於嘗試並從經驗中成長。</p>
-                    </article>
-                    <article class="story-block">
-                        <span class="eyebrow"><svg class="icon"><use href="#i-list"/></svg> 做事態度</span>
-                        <p>做事之前，我習慣先規劃步驟與排定進度，按部就班完成任務。雖然有時會因思考過多而猶豫，但我懂得提醒自己<strong>「盡力就好」</strong>。這讓我養成細心、謹慎、負責的態度，在團隊中能穩定地推進工作。</p>
-                    </article>
+                <!-- Card 2: Crafting & Hands-on -->
+                <div class="bg-cream-50 dark:bg-warmgray-900 p-8 rounded-2xl border border-cream-200 dark:border-warmgray-800 custom-shadow hover:-translate-y-1 transition-transform">
+                    <div class="w-12 h-12 rounded-xl bg-pastel-blue/40 flex items-center justify-center text-warmgray-800 dark:text-cream-100 mb-6 text-xl">
+                        <i class="fa-solid fa-hands-holding-circle"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-warmgray-900 dark:text-cream-50">手作與實作精神</h3>
+                    <p class="text-sm text-warmgray-600 dark:text-cream-300 leading-relaxed">
+                        熱愛自己動手創作，從自主上網找食譜烘焙甜點、到選材製作吊飾，再到網頁設計。享受「從零到有」過程帶來的成就感與獨一無二的創作自由，這也培養了我極佳的耐性與細緻度。
+                    </p>
                 </div>
 
-                <!-- 三張特色卡片 -->
-                <div class="card-grid three">
-                    <div class="card lift">
-                        <div class="card-icon rose"><svg class="icon"><use href="#i-compass"/></svg></div>
-                        <h3>個性與特質</h3>
-                        <p>初次見面時給人冷靜沉穩的印象，熟悉後會發現我是個單純、細心且負責任的人。對自己認同與熱愛的事物充滿熱忱，能按部就班推進目標，兼具獨立思考與抗壓能力。</p>
+                <!-- Card 3: Lifestyle & Insight -->
+                <div class="bg-cream-50 dark:bg-warmgray-900 p-8 rounded-2xl border border-cream-200 dark:border-warmgray-800 custom-shadow hover:-translate-y-1 transition-transform">
+                    <div class="w-12 h-12 rounded-xl bg-pastel-sage/30 flex items-center justify-center text-warmgray-800 dark:text-cream-100 mb-6 text-xl">
+                        <i class="fa-solid fa-book-open"></i>
                     </div>
-                    <div class="card lift">
-                        <div class="card-icon blue"><svg class="icon"><use href="#i-heart"/></svg></div>
-                        <h3>手作與實作精神</h3>
-                        <p>熱愛自己動手創作，從上網找影片學烘焙甜點、自己挑材料做吊飾，到網頁設計。享受「從零到有」帶來的成就感與創作自由，也培養了耐心與細緻度。</p>
+                    <h3 class="text-xl font-bold mb-3 text-warmgray-900 dark:text-cream-50">視角與觀察</h3>
+                    <p class="text-sm text-warmgray-600 dark:text-cream-300 leading-relaxed">
+                        課餘時間熱愛追動漫、看電視劇與閱讀小說。習慣透過角色之間的互動與情境觀察，學習多元的敘事邏輯與思考方式。這樣的觀察力能無縫融匯至 UI/UX 系統設計中，從使用者角度打造好貼心的互動體驗。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Life Expectations Sub-banner -->
+            <div class="mt-12 p-6 rounded-2xl bg-cream-200/50 dark:bg-warmgray-800/80 border border-cream-300 dark:border-warmgray-700 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 bg-pastel-accent/20 text-pastel-accent dark:text-pastel-sage rounded-xl text-2xl">
+                        <i class="fa-solid fa-seedling"></i>
                     </div>
-                    <div class="card lift">
-                        <div class="card-icon sage"><svg class="icon"><use href="#i-book"/></svg></div>
-                        <h3>視角與觀察</h3>
-                        <p>課餘時間熱愛追動漫、看電視劇與閱讀小說。透過角色之間的互動與情境，學習多元的敘事邏輯與思考方式，並把這份觀察力帶進 UI/UX 設計，從使用者角度打造貼心的互動體驗。</p>
+                    <div>
+                        <h4 class="font-bold text-warmgray-900 dark:text-cream-50">研究所生涯期望</h4>
+                        <p class="text-xs text-warmgray-600 dark:text-cream-300 mt-1">持續提升英文能力 | 在學階段尋找明確目標 | 積極參與校內外打工與實務歷練</p>
                     </div>
                 </div>
+                <div class="flex gap-2">
+                    <span class="px-3 py-1 bg-cream-50 dark:bg-warmgray-900 text-xs rounded-full border border-cream-300 dark:border-warmgray-700 text-warmgray-700 dark:text-cream-200">細心規劃</span>
+                    <span class="px-3 py-1 bg-cream-50 dark:bg-warmgray-900 text-xs rounded-full border border-cream-300 dark:border-warmgray-700 text-warmgray-700 dark:text-cream-200">勇於嘗試</span>
+                </div>
+            </div>
 
-                <!-- 研究所生涯期望（可打勾清單）
-                     每一項都是 <label> 包住一個真正的 checkbox，
-                     點文字或方框都能勾選；打勾樣式由 CSS 的 :checked 控制。
-                     script.js 會額外把勾選狀態記在瀏覽器，下次打開還在。 -->
-                <div class="goals">
-                    <div class="goals-head">
-                        <div class="goals-icon"><svg class="icon"><use href="#i-sprout"/></svg></div>
-                        <div>
-                            <h4>研究所生涯期望</h4>
-                            <p>一路讀上來還沒有很明確的目標，但我知道自己想往這些方向努力：</p>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <h2 class="text-3xl font-bold text-warmgray-900 dark:text-cream-50">專業技能 Skills & Capabilities</h2>
+            <div class="w-12 h-1 bg-pastel-accent mx-auto mt-3 rounded-full"></div>
+            <p class="mt-4 text-warmgray-600 dark:text-cream-300 text-sm">
+                結合資訊管理硬實力與團隊溝通協調的軟實力。
+            </p>
+        </div>
+
+        <!-- Filter / Tab Navigation -->
+        <div class="flex justify-center space-x-2 mb-10">
+            <button onclick="switchSkillTab('all')" id="btn-sk-all" class="skill-tab-btn px-4 py-2 text-sm rounded-xl bg-warmgray-800 text-cream-50 dark:bg-cream-100 dark:text-warmgray-900 font-medium transition-all">全部技能</button>
+            <button onclick="switchSkillTab('hard')" id="btn-sk-hard" class="skill-tab-btn px-4 py-2 text-sm rounded-xl bg-cream-200 text-warmgray-700 dark:bg-warmgray-800 dark:text-cream-200 font-medium transition-all">硬實力 Hard Skills</button>
+            <button onclick="switchSkillTab('soft')" id="btn-sk-soft" class="skill-tab-btn px-4 py-2 text-sm rounded-xl bg-cream-200 text-warmgray-700 dark:bg-warmgray-800 dark:text-cream-200 font-medium transition-all">軟實力 Soft Skills</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Hard Skill 1 -->
+            <div class="skill-card sk-hard p-6 rounded-2xl bg-cream-100/50 dark:bg-warmgray-800/50 border border-cream-200 dark:border-warmgray-700">
+                <div class="flex items-center space-x-3 mb-4">
+                    <i class="fa-solid fa-code text-pastel-accent text-xl"></i>
+                    <h3 class="font-bold text-warmgray-900 dark:text-cream-50">程式設計</h3>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-cream-50 dark:bg-warmgray-900 text-xs rounded-lg border border-cream-300 dark:border-warmgray-700 font-medium">Python</span>
+                    <span class="px-3 py-1 bg-cream-50 dark:bg-warmgray-900 text-xs rounded-lg border border-cream-300 dark:border-warmgray-700 font-medium">HTML5 / CSS3</span>
+                    <span class="px-3 py-1 bg-cream-50 dark:bg-warmgray-900 text-xs rounded-lg border border-cream-300 dark:border-warmgray-700 font-medium">JavaScript</span>
+                    <span class="px-3 py-1 bg-cream-50 dark:bg-warmgray-900 text-xs rounded-lg border border-cream-300 dark:border-warmgray-700 font-medium">PHP</span>
+                </div>
+            </div>
+
+            <!-- Hard Skill 2 -->
+            <div class="skill-card sk-hard p-6 rounded-2xl bg-cream-100/50 dark:bg-warmgray-800/50 border border-cream-200 dark:border-warmgray-700">
+                <div class="flex items-center space-x-3 mb-4">
+                    <i class="fa-solid fa-pen-nib text-pastel-accent text-xl"></i>
+                    <h3 class="font-bold text-warmgray-900 dark:text-cream-50">網頁開發與 UI/UX</h3>
+                </div>
+                <p class="text-xs text-warmgray-600 dark:text-cream-300 mb-3">注重使用者習慣與畫面節奏感，設計直覺美觀的互動介面。</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-cream-50 dark:bg-warmgray-900 text-xs rounded-lg border border-cream-300 dark:border-warmgray-700 font-medium">Web Development</span>
+                    <span class="px-3 py-1 bg-cream-50 dark:bg-warmgray-900 text-xs rounded-lg border border-cream-300 dark:border-warmgray-700 font-medium">UI / UX 介面設計</span>
+                </div>
+            </div>
+
+            <!-- Hard Skill 3 -->
+            <div class="skill-card sk-hard p-6 rounded-2xl bg-cream-100/50 dark:bg-warmgray-800/50 border border-cream-200 dark:border-warmgray-700">
+                <div class="flex items-center space-x-3 mb-4">
+                    <i class="fa-solid fa-chart-pie text-pastel-accent text-xl"></i>
+                    <h3 class="font-bold text-warmgray-900 dark:text-cream-50">資料分析與企業系統</h3>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-2">
+                    <span class="px-3 py-1 bg-cream-50 dark:bg-warmgray-900 text-xs rounded-lg border border-cream-300 dark:border-warmgray-700 font-medium">Excel 資料分析</span>
+                </div>
+                <p class="text-xs text-warmgray-600 dark:text-cream-300 mt-2">ERP 系統流程理解：</p>
+                <div class="flex flex-wrap gap-1.5 mt-1">
+                    <span class="px-2 py-0.5 bg-pastel-sage/20 text-warmgray-800 dark:text-cream-100 text-[11px] rounded">SD (銷售)</span>
+                    <span class="px-2 py-0.5 bg-pastel-sage/20 text-warmgray-800 dark:text-cream-100 text-[11px] rounded">MM (物料)</span>
+                    <span class="px-2 py-0.5 bg-pastel-sage/20 text-warmgray-800 dark:text-cream-100 text-[11px] rounded">FI (財務)</span>
+                    <span class="px-2 py-0.5 bg-pastel-sage/20 text-warmgray-800 dark:text-cream-100 text-[11px] rounded">PP (生產)</span>
+                </div>
+            </div>
+
+            <!-- Soft Skill 1 -->
+            <div class="skill-card sk-soft p-6 rounded-2xl bg-cream-100/50 dark:bg-warmgray-800/50 border border-cream-200 dark:border-warmgray-700">
+                <div class="flex items-center space-x-3 mb-4">
+                    <i class="fa-solid fa-comments text-pastel-accent text-xl"></i>
+                    <h3 class="font-bold text-warmgray-900 dark:text-cream-50">溝通與傾聽能力</h3>
+                </div>
+                <p class="text-xs text-warmgray-600 dark:text-cream-300">
+                    善於專注傾聽他人想法，並有效協調團隊內部不同意見，創造和諧順暢的合作氛圍。
+                </p>
+            </div>
+
+            <!-- Soft Skill 2 -->
+            <div class="skill-card sk-soft p-6 rounded-2xl bg-cream-100/50 dark:bg-warmgray-800/50 border border-cream-200 dark:border-warmgray-700">
+                <div class="flex items-center space-x-3 mb-4">
+                    <i class="fa-solid fa-sliders text-pastel-accent text-xl"></i>
+                    <h3 class="font-bold text-warmgray-900 dark:text-cream-50">專案規劃與時間管理</h3>
+                </div>
+                <p class="text-xs text-warmgray-600 dark:text-cream-300">
+                    習慣事前排定步驟與進度，細心分配任務，確保專案能穩健且按部就班推進完成。
+                </p>
+            </div>
+
+            <!-- Soft Skill 3 -->
+            <div class="skill-card sk-soft p-6 rounded-2xl bg-cream-100/50 dark:bg-warmgray-800/50 border border-cream-200 dark:border-warmgray-700">
+                <div class="flex items-center space-x-3 mb-4">
+                    <i class="fa-solid fa-lightbulb text-pastel-accent text-xl"></i>
+                    <h3 class="font-bold text-warmgray-900 dark:text-cream-50">獨立問題解決</h3>
+                </div>
+                <p class="text-xs text-warmgray-600 dark:text-cream-300">
+                    具備冷靜分析問題核心的能力，不畏懼自學新工具，懂得從經驗中反思與調整改進。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Research & Vision Section -->
+    <section id="research" class="py-20 bg-cream-100/60 dark:bg-warmgray-800/40 border-y border-cream-200 dark:border-warmgray-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="inline-block px-3 py-1 rounded-md bg-pastel-accent/20 text-pastel-accent dark:text-pastel-sage text-xs font-bold tracking-wide uppercase">
+                        Master Research Focus
+                    </div>
+                    <h2 class="text-3xl font-bold text-warmgray-900 dark:text-cream-50">研究興趣與目標</h2>
+                    <p class="text-sm text-warmgray-600 dark:text-cream-300 leading-relaxed">
+                        在東華資管研究所階段，我期望能深度結合資訊技術與日常應用。透過大型語言模型（LLM）與自然語言處理，探討真實情境中的人類行為與數據互動。
+                    </p>
+
+                    <div class="space-y-3 pt-2">
+                        <div class="flex items-start space-x-3">
+                            <i class="fa-solid fa-check text-pastel-accent mt-1"></i>
+                            <span class="text-xs text-warmgray-700 dark:text-cream-200 font-medium">人工智慧 (AI) 與 自然語言處理 (NLP)</span>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i class="fa-solid fa-check text-pastel-accent mt-1"></i>
+                            <span class="text-xs text-warmgray-700 dark:text-cream-200 font-medium">文字探勘 (Text Mining) 與 語意分析</span>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i class="fa-solid fa-check text-pastel-accent mt-1"></i>
+                            <span class="text-xs text-warmgray-700 dark:text-cream-200 font-medium">顧客評論數據探勘與商業情報應用</span>
                         </div>
                     </div>
-                    <ul class="goal-list">
-                        <li>
-                            <label class="goal">
-                                <input type="checkbox" id="goal-1" class="goal-input">
-                                <span class="goal-box"><svg class="icon"><use href="#i-check"/></svg></span>
-                                <span class="goal-text">好好提升英文能力</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="goal">
-                                <input type="checkbox" id="goal-2" class="goal-input">
-                                <span class="goal-box"><svg class="icon"><use href="#i-check"/></svg></span>
-                                <span class="goal-text">在學習過程中找到屬於自己的目標</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="goal">
-                                <input type="checkbox" id="goal-3" class="goal-input">
-                                <span class="goal-box"><svg class="icon"><use href="#i-check"/></svg></span>
-                                <span class="goal-text">有機會的話去打工，校內校外都好，累積人生體驗</span>
-                            </label>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- =================================================================
-             專業技能（分頁篩選）
-             原理：4 個隱藏的 radio 按鈕（同一組 name="skill"，一次只能選一個）
-                   放在分頁標籤與卡片「前面」，
-                   CSS 用「#sk-hard:checked ~ .card-grid ...」決定要顯示哪些卡片。
-             注意：radio 一定要放在 .tabs 和 .card-grid 的「前面、同一層」，CSS 的 ~ 才找得到。
-             ================================================================= -->
-        <section id="skills" class="container section">
-            <div class="section-head">
-                <h2>專業技能 Skills &amp; Capabilities</h2>
-                <div class="bar"></div>
-                <p>結合資訊管理硬實力、團隊溝通的軟實力，以及細心穩定的個人特質。</p>
-            </div>
-
-            <div class="filter">
-                <input type="radio" name="skill" id="sk-all" class="tab-radio" checked>
-                <input type="radio" name="skill" id="sk-hard" class="tab-radio">
-                <input type="radio" name="skill" id="sk-soft" class="tab-radio">
-                <input type="radio" name="skill" id="sk-trait" class="tab-radio">
-
-                <!-- 分頁標籤：點 label 等於點對應的 radio -->
-                <div class="tabs" aria-label="技能分類">
-                    <label for="sk-all" class="tab-btn">全部技能</label>
-                    <label for="sk-hard" class="tab-btn">硬實力 Hard</label>
-                    <label for="sk-soft" class="tab-btn">軟實力 Soft</label>
-                    <label for="sk-trait" class="tab-btn">個人特質</label>
                 </div>
 
-                <!-- 技能卡片：data-cat 決定屬於哪一類（hard / soft / trait） -->
-                <div class="card-grid three">
-                    <!-- ---- 硬實力 ---- -->
-                    <div class="card skill-card" data-cat="hard">
-                        <div class="skill-title"><svg class="icon"><use href="#i-code"/></svg><h3>程式設計</h3></div>
-                        <div class="pills">
-                            <span class="pill">HTML5 / CSS3</span>
-                            <span class="pill">JavaScript</span>
-                            <span class="pill">PHP</span>
-                            <span class="pill">Python</span>
-                        </div>
-                    </div>
-                    <div class="card skill-card" data-cat="hard">
-                        <div class="skill-title"><svg class="icon"><use href="#i-pen"/></svg><h3>網頁開發與 UI/UX</h3></div>
-                        <p>注重使用者習慣與畫面節奏感，設計直覺美觀的互動介面。</p>
-                        <div class="pills">
-                            <span class="pill">Web Development</span>
-                            <span class="pill">UI / UX 介面設計</span>
-                        </div>
-                    </div>
-                    <div class="card skill-card" data-cat="hard">
-                        <div class="skill-title"><svg class="icon"><use href="#i-chart"/></svg><h3>資料分析與企業系統</h3></div>
-                        <div class="pills"><span class="pill">Excel 資料分析</span></div>
-                        <p class="mini-label">ERP 系統流程理解：</p>
-                        <div class="pills small">
-                            <span class="pill sage">SD 銷售</span>
-                            <span class="pill sage">MM 物料</span>
-                            <span class="pill sage">FI 財務</span>
-                            <span class="pill sage">PP 生產</span>
-                        </div>
-                    </div>
-
-                    <!-- ---- 軟實力 ---- -->
-                    <div class="card skill-card" data-cat="soft">
-                        <div class="skill-title"><svg class="icon"><use href="#i-chat"/></svg><h3>溝通與傾聽能力</h3></div>
-                        <p>善於專注傾聽他人想法，並有效協調團隊內部不同意見，創造順暢的合作氛圍。</p>
-                    </div>
-                    <div class="card skill-card" data-cat="soft">
-                        <div class="skill-title"><svg class="icon"><use href="#i-sliders"/></svg><h3>時間管理與任務分配</h3></div>
-                        <p>習慣事前排定步驟與進度，細心分配任務，確保專案穩健、按部就班地完成。</p>
-                    </div>
-                    <div class="card skill-card" data-cat="soft">
-                        <div class="skill-title"><svg class="icon"><use href="#i-bulb"/></svg><h3>獨立思考與問題解決</h3></div>
-                        <p>能冷靜分析問題核心，不畏懼自學新工具，懂得從經驗中反思與調整。</p>
-                    </div>
-
-                    <!-- ---- 個人特質 ---- -->
-                    <div class="card skill-card" data-cat="trait">
-                        <div class="skill-title"><svg class="icon"><use href="#i-check-circle"/></svg><h3>細心負責</h3></div>
-                        <p>重視規劃與執行，交付的每件事都會仔細確認。</p>
-                    </div>
-                    <div class="card skill-card" data-cat="trait">
-                        <div class="skill-title"><svg class="icon"><use href="#i-leaf"/></svg><h3>冷靜穩定</h3></div>
-                        <p>面對壓力時保持冷靜，抗壓性高，是團隊中穩定的力量。</p>
-                    </div>
-                    <div class="card skill-card" data-cat="trait">
-                        <div class="skill-title"><svg class="icon"><use href="#i-sparkle"/></svg><h3>樂於學習與分享</h3></div>
-                        <p>喜歡嘗試新技術，也樂意把學到的東西分享給身邊的人。</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- =================================================================
-             研究興趣
-             ================================================================= -->
-        <section id="research" class="band">
-            <div class="container research-grid">
-                <div class="research-text">
-                    <span class="kicker">Master Research Focus</span>
-                    <h2>研究興趣與目標</h2>
-                    <p>在東華資管研究所階段，我期望深度結合資訊技術與日常應用，透過大型語言模型（LLM）與自然語言處理，探討真實情境中人與數據的互動。</p>
-                    <ul class="check-list">
-                        <li><svg class="icon"><use href="#i-check"/></svg>人工智慧 (AI) 與 自然語言處理 (NLP)</li>
-                        <li><svg class="icon"><use href="#i-check"/></svg>文字探勘 (Text Mining) 與 語意分析</li>
-                        <li><svg class="icon"><use href="#i-check"/></svg>顧客評論資料探勘與商業應用</li>
-                    </ul>
-                </div>
-
-                <div class="research-cards">
-                    <!-- 論文主題卡 -->
-                    <div class="topic-card">
-                        <div class="topic-head">
-                            <span class="topic-icon"><svg class="icon"><use href="#i-microscope"/></svg></span>
+                <div class="lg:col-span-7">
+                    <!-- Research Topic Highlight Card -->
+                    <div class="bg-cream-50 dark:bg-warmgray-900 p-8 rounded-3xl border-2 border-dashed border-pastel-sage/50 custom-shadow relative overflow-hidden">
+                        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-pastel-rose/20 rounded-full blur-2xl"></div>
+                        
+                        <div class="flex items-center space-x-3 mb-6">
+                            <span class="p-3 bg-pastel-sage/20 rounded-2xl text-pastel-accent dark:text-pastel-sage text-2xl">
+                                <i class="fa-solid fa-microscope"></i>
+                            </span>
                             <div>
-                                <span class="mini-label">擬定論文研究主題</span>
-                                <h3>大型語言模型分析顧客評論對餐飲評價之影響</h3>
+                                <span class="text-xs text-warmgray-600 dark:text-cream-300 font-medium">擬定論文研究主題</span>
+                                <h3 class="text-lg font-bold text-warmgray-900 dark:text-cream-50">大型語言模型分析顧客評論對餐飲評價之影響</h3>
                             </div>
                         </div>
-                        <p>以餐飲業為應用場域，利用大型語言模型對顧客評論進行語意與情感分析，找出傳統統計方法難以捕捉的真實想法與潛在需求，協助餐飲業者改善品質與服務體驗。</p>
-                        <div class="topic-foot">
-                            <span><svg class="icon"><use href="#i-target"/></svg> 研究核心：數據 + 人性 + 智慧服務</span>
-                            <span>NDHU IM</span>
+
+                        <p class="text-xs text-warmgray-600 dark:text-cream-300 leading-relaxed mb-6">
+                            以餐飲領域為應用場域，利用大型語言模型（LLM）進行顧客評價文本的深度語意與情感分析，挖掘出傳統統計難以捕捉的使用者真實意圖與潛在需求，進而協助餐飲業者優化品質與體驗服務。
+                        </p>
+
+                        <div class="bg-cream-200/60 dark:bg-warmgray-800/80 p-4 rounded-xl flex items-center justify-between text-xs">
+                            <span class="text-warmgray-700 dark:text-cream-200 font-medium"><i class="fa-solid fa-bullseye text-pastel-accent mr-1"></i> 研究核心：數據 + 人性 + 智慧服務</span>
+                            <span class="text-warmgray-600 dark:text-cream-300">NDHU IM</span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- 評論分析示意：同樣用隱藏 checkbox 控制「顯示 / 隱藏分析結果」 -->
-                    <div class="review-demo">
-                        <input type="checkbox" id="reviewToggle" class="review-toggle">
-                        <div class="review-top">
-                            <span class="mini-label">示意範例：一則評論可以拆出什麼？</span>
-                            <label for="reviewToggle" class="link-btn">
-                                <span class="txt-show">顯示分析結果</span>
-                                <span class="txt-hide">隱藏分析結果</span>
-                            </label>
-                        </div>
-                        <p class="review-text">「<mark class="pos">湯頭很濃郁</mark>，<mark class="pos">麵條也很Q</mark>，可惜<mark class="neg">排隊等了快一小時</mark>，<mark class="neg">店員態度有點冷淡</mark>。」</p>
-                        <div class="aspects">
-                            <span>口味 <b class="p">+</b></span>
-                            <span>口感 <b class="p">+</b></span>
-                            <span>等候時間 <b class="n">−</b></span>
-                            <span>服務 <b class="n">−</b></span>
-                        </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DIY & Creative Showcase Section -->
+    <section id="diy" class="py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-3xl font-bold text-warmgray-900 dark:text-cream-50">手作與日常創作 My DIY & Life</h2>
+            <div class="w-12 h-1 bg-pastel-accent mx-auto mt-3 rounded-full"></div>
+            <p class="mt-4 text-warmgray-600 dark:text-cream-300 text-sm">
+                從甜點烘焙、手作吊飾到影視小說觀點，這些創作點滴滋養了我的生活與設計靈感。
+            </p>
+        </div>
+
+        <!-- Interactive Craft Switcher -->
+        <div class="bg-cream-100/80 dark:bg-warmgray-800/60 rounded-3xl p-6 md:p-8 border border-cream-200 dark:border-warmgray-700">
+            <!-- Tabs -->
+            <div class="flex flex-wrap justify-center gap-3 mb-8">
+                <button onclick="switchDiy('baking')" id="diy-btn-baking" class="diy-nav-btn px-5 py-2.5 rounded-xl bg-warmgray-800 text-cream-50 dark:bg-cream-100 dark:text-warmgray-900 text-xs font-semibold transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-cake-candles"></i> 自學烘焙甜點
+                </button>
+                <button onclick="switchDiy('craft')" id="diy-btn-craft" class="diy-nav-btn px-5 py-2.5 rounded-xl bg-cream-200 text-warmgray-700 dark:bg-warmgray-700 dark:text-cream-200 text-xs font-semibold transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-gem"></i> 手作吊飾與小物
+                </button>
+                <button onclick="switchDiy('uiux')" id="diy-btn-uiux" class="diy-nav-btn px-5 py-2.5 rounded-xl bg-cream-200 text-warmgray-700 dark:bg-warmgray-700 dark:text-cream-200 text-xs font-semibold transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-laptop-code"></i> UI/UX 網頁創作
+                </button>
+                <button onclick="switchDiy('anime')" id="diy-btn-anime" class="diy-nav-btn px-5 py-2.5 rounded-xl bg-cream-200 text-warmgray-700 dark:bg-warmgray-700 dark:text-cream-200 text-xs font-semibold transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-film"></i> 動漫小說情境觀察
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div id="diy-content-baking" class="diy-tab-content grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-4">
+                    <span class="px-3 py-1 rounded-md bg-pastel-rose/30 text-warmgray-800 dark:text-cream-100 text-xs font-medium">Baking & Sweets</span>
+                    <h3 class="text-xl font-bold text-warmgray-900 dark:text-cream-50">網路自學烘焙手作</h3>
+                    <p class="text-xs text-warmgray-600 dark:text-cream-300 leading-relaxed">
+                        喜歡主動尋找影片教學，準備食材、精準計量、掌控火候。烘焙帶給我平靜與專注，看著原料經過烘烤變成香甜點心，帶來滿滿的驚喜與成果成就感。
+                    </p>
+                    <div class="flex gap-2 text-xs text-warmgray-600 dark:text-cream-300 italic">
+                        <span>#細心比例控制</span> <span>#精準度</span> <span>#生活儀式感</span>
+                    </div>
+                </div>
+                <div class="h-48 rounded-2xl bg-cream-200 dark:bg-warmgray-700 flex flex-col items-center justify-center p-6 text-center border border-dashed border-cream-300 dark:border-warmgray-600">
+                    <i class="fa-solid fa-cookie-bite text-4xl text-pastel-accent mb-2"></i>
+                    <p class="text-xs text-warmgray-600 dark:text-cream-300 font-medium">從食譜調配到包裝，享受原創的樂趣</p>
+                </div>
+            </div>
+
+            <div id="diy-content-craft" class="diy-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-4">
+                    <span class="px-3 py-1 rounded-md bg-pastel-sage/30 text-warmgray-800 dark:text-cream-100 text-xs font-medium">Handmade Crafts</span>
+                    <h3 class="text-xl font-bold text-warmgray-900 dark:text-cream-50">材料選購與吊飾設計</h3>
+                    <p class="text-xs text-warmgray-600 dark:text-cream-300 leading-relaxed">
+                        喜歡親自去書店或手作行挑選材料與配色，根據自己的喜好組合出獨一無二的飾品小物。每一個飾品都是個人創意的展現。
+                    </p>
+                    <div class="flex gap-2 text-xs text-warmgray-600 dark:text-cream-300 italic">
+                        <span>#配色審美</span> <span>#耐心手工</span> <span>#客製化設計</span>
+                    </div>
+                </div>
+                <div class="h-48 rounded-2xl bg-cream-200 dark:bg-warmgray-700 flex flex-col items-center justify-center p-6 text-center border border-dashed border-cream-300 dark:border-warmgray-600">
+                    <i class="fa-solid fa-shapes text-4xl text-pastel-accent mb-2"></i>
+                    <p class="text-xs text-warmgray-600 dark:text-cream-300 font-medium">自由搭配色調與質感，創造溫暖手作感</p>
+                </div>
+            </div>
+
+            <div id="diy-content-uiux" class="diy-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-4">
+                    <span class="px-3 py-1 rounded-md bg-pastel-blue/40 text-warmgray-800 dark:text-cream-100 text-xs font-medium">Web & Interaction</span>
+                    <h3 class="text-xl font-bold text-warmgray-900 dark:text-cream-50">將手作精神融入網頁設計</h3>
+                    <p class="text-xs text-warmgray-600 dark:text-cream-300 leading-relaxed">
+                        將手作「從零建構」的思維運用在程式開發與 UI/UX 上。精心調整畫面佈局、色彩對比與按鈕動效，打造令人感到舒適沉靜的數位體驗。
+                    </p>
+                    <div class="flex gap-2 text-xs text-warmgray-600 dark:text-cream-300 italic">
+                        <span>#使用者思維</span> <span>#清爽排版</span> <span>#質感數位化</span>
+                    </div>
+                </div>
+                <div class="h-48 rounded-2xl bg-cream-200 dark:bg-warmgray-700 flex flex-col items-center justify-center p-6 text-center border border-dashed border-cream-300 dark:border-warmgray-600">
+                    <i class="fa-solid fa-wand-magic-sparkles text-4xl text-pastel-accent mb-2"></i>
+                    <p class="text-xs text-warmgray-600 dark:text-cream-300 font-medium">代碼與介面的優雅結合</p>
+                </div>
+            </div>
+
+            <div id="diy-content-anime" class="diy-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-4">
+                    <span class="px-3 py-1 rounded-md bg-pastel-rose/30 text-warmgray-800 dark:text-cream-100 text-xs font-medium">Story & Empathy</span>
+                    <h3 class="text-xl font-bold text-warmgray-900 dark:text-cream-50">追劇動漫與小說閱讀的養分</h3>
+                    <p class="text-xs text-warmgray-600 dark:text-cream-300 leading-relaxed">
+                        透過觀察故事中角色的互動與情感選擇，體會不同的世界觀與思考邏輯。這讓我更具備同理心（Empathy），能在設計系統時站在多方視角理解需求。
+                    </p>
+                    <div class="flex gap-2 text-xs text-warmgray-600 dark:text-cream-300 italic">
+                        <span>#多元視角</span> <span>#情境想像力</span> <span>#換位思考</span>
+                    </div>
+                </div>
+                <div class="h-48 rounded-2xl bg-cream-200 dark:bg-warmgray-700 flex flex-col items-center justify-center p-6 text-center border border-dashed border-cream-300 dark:border-warmgray-600">
+                    <i class="fa-solid fa-tv text-4xl text-pastel-accent mb-2"></i>
+                    <p class="text-xs text-warmgray-600 dark:text-cream-300 font-medium">從故事中汲取溝通與人際互動的靈感</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-cream-100/60 dark:bg-warmgray-800/40 border-t border-cream-200 dark:border-warmgray-800">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            
+            <h2 class="text-3xl font-bold text-warmgray-900 dark:text-cream-50">保持聯絡 Contact</h2>
+            <div class="w-12 h-1 bg-pastel-accent mx-auto mt-3 rounded-full"></div>
+            <p class="mt-4 text-warmgray-600 dark:text-cream-300 text-sm max-w-xl mx-auto">
+                如果您對我的研究、UI/UX 設計或合作機會有興趣，歡迎隨時與我聯繫！
+            </p>
+
+            <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+                <div class="p-6 rounded-2xl bg-cream-50 dark:bg-warmgray-900 border border-cream-200 dark:border-warmgray-800 flex items-center space-x-4">
+                    <div class="p-3 bg-pastel-sage/20 text-pastel-accent rounded-xl text-xl">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div class="text-left">
+                        <span class="text-[11px] text-warmgray-600 dark:text-cream-300 block">所在地 Location</span>
+                        <span class="text-sm font-bold text-warmgray-800 dark:text-cream-100">台灣 花蓮 / 高雄</span>
+                    </div>
+                </div>
+
+                <div class="p-6 rounded-2xl bg-cream-50 dark:bg-warmgray-900 border border-cream-200 dark:border-warmgray-800 flex items-center space-x-4">
+                    <div class="p-3 bg-pastel-rose/30 text-warmgray-800 dark:text-cream-100 rounded-xl text-xl">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div class="text-left">
+                        <span class="text-[11px] text-warmgray-600 dark:text-cream-300 block">學校單位 Department</span>
+                        <span class="text-sm font-bold text-warmgray-800 dark:text-cream-100">國立東華大學 資管碩士班</span>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- =================================================================
-             手作與創作（分頁）
-             原理同「專業技能」：4 個 radio + CSS 決定顯示哪一個面板。
-             ================================================================= -->
-        <section id="diy" class="container section">
-            <div class="section-head">
-                <h2>手作與日常創作 My DIY &amp; Life</h2>
-                <div class="bar"></div>
-                <p>從甜點烘焙、手作吊飾到動漫小說，這些點滴滋養了我的生活與設計靈感。</p>
+            <!-- Simple Interactive Note -->
+            <div class="mt-12 p-6 rounded-2xl bg-cream-200/40 dark:bg-warmgray-800/40 max-w-md mx-auto text-center border border-cream-300 dark:border-warmgray-700">
+                <p class="text-xs text-warmgray-600 dark:text-cream-300">
+                    「盡力就好，穩健前行。」— 期待未來能夠運用資訊與數據的力量，創造更多溫暖且實用的服務。
+                </p>
             </div>
 
-            <div class="diy-box">
-                <input type="radio" name="diy" id="d-baking" class="tab-radio" checked>
-                <input type="radio" name="diy" id="d-craft" class="tab-radio">
-                <input type="radio" name="diy" id="d-uiux" class="tab-radio">
-                <input type="radio" name="diy" id="d-anime" class="tab-radio">
+        </div>
+    </section>
 
-                <div class="tabs" aria-label="手作分類">
-                    <label for="d-baking" class="tab-btn"><svg class="icon"><use href="#i-cake"/></svg> 自學烘焙甜點</label>
-                    <label for="d-craft" class="tab-btn"><svg class="icon"><use href="#i-gem"/></svg> 手作吊飾與小物</label>
-                    <label for="d-uiux" class="tab-btn"><svg class="icon"><use href="#i-laptop"/></svg> UI/UX 網頁創作</label>
-                    <label for="d-anime" class="tab-btn"><svg class="icon"><use href="#i-film"/></svg> 動漫小說情境觀察</label>
-                </div>
-
-                <div class="diy-panels">
-                    <div class="diy-panel" data-panel="baking">
-                        <div class="diy-text">
-                            <span class="tag rose">Baking &amp; Sweets</span>
-                            <h3>網路自學烘焙</h3>
-                            <p>喜歡自己上網找影片教學，準備食材、精準計量、掌控火候。烘焙帶給我平靜與專注，看著原料變成香甜點心，成就感滿滿。</p>
-                            <div class="hashtags"><span>#細心比例控制</span><span>#精準度</span><span>#生活儀式感</span></div>
-                        </div>
-                        <div class="diy-visual"><svg class="icon"><use href="#i-cookie"/></svg><p>從食譜調配到包裝，享受原創的樂趣</p></div>
-                    </div>
-
-                    <div class="diy-panel" data-panel="craft">
-                        <div class="diy-text">
-                            <span class="tag sage">Handmade Crafts</span>
-                            <h3>材料選購與吊飾設計</h3>
-                            <p>喜歡親自去書店挑選材料與配色，照自己的喜好組合出獨一無二的吊飾小物。每一個作品都是個人創意的展現。</p>
-                            <div class="hashtags"><span>#配色審美</span><span>#耐心手工</span><span>#客製化設計</span></div>
-                        </div>
-                        <div class="diy-visual"><svg class="icon"><use href="#i-shapes"/></svg><p>自由搭配色調與質感，創造溫暖手作感</p></div>
-                    </div>
-
-                    <div class="diy-panel" data-panel="uiux">
-                        <div class="diy-text">
-                            <span class="tag blue">Web &amp; Interaction</span>
-                            <h3>將手作精神融入網頁設計</h3>
-                            <p>把手作「從零建構」的思維運用在程式開發與 UI/UX 上，仔細調整版面、色彩對比與按鈕動效，打造舒適沉靜的數位體驗。</p>
-                            <div class="hashtags"><span>#使用者思維</span><span>#清爽排版</span><span>#質感數位化</span></div>
-                        </div>
-                        <div class="diy-visual"><svg class="icon"><use href="#i-sparkle"/></svg><p>程式碼與介面的優雅結合</p></div>
-                    </div>
-
-                    <div class="diy-panel" data-panel="anime">
-                        <div class="diy-text">
-                            <span class="tag rose">Story &amp; Empathy</span>
-                            <h3>追劇、動漫與小說的養分</h3>
-                            <p>透過觀察故事中角色的互動與情感選擇，體會不同的世界觀與思考邏輯，讓我在設計系統時更能站在多方視角理解需求。</p>
-                            <div class="hashtags"><span>#多元視角</span><span>#情境想像力</span><span>#換位思考</span></div>
-                        </div>
-                        <div class="diy-visual"><svg class="icon"><use href="#i-tv"/></svg><p>從故事中汲取溝通與人際互動的靈感</p></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- =================================================================
-             聯絡方式
-             ================================================================= -->
-        <section id="contact" class="band band-last">
-            <div class="container narrow center">
-                <div class="section-head">
-                    <h2>保持聯絡 Contact</h2>
-                    <div class="bar"></div>
-                    <p>如果您對我的研究、UI/UX 設計或合作機會有興趣，歡迎隨時與我聯繫！</p>
-                </div>
-
-                <div class="contact-grid">
-                    <div class="contact-card">
-                        <div class="card-icon sage"><svg class="icon"><use href="#i-pin"/></svg></div>
-                        <div><span class="mini-label">所在地 Location</span><strong>台灣 花蓮 / 高雄</strong></div>
-                    </div>
-                    <div class="contact-card">
-                        <div class="card-icon rose"><svg class="icon"><use href="#i-graduate"/></svg></div>
-                        <div><span class="mini-label">學校單位 Department</span><strong>國立東華大學 資管碩士班</strong></div>
-                    </div>
-                </div>
-
-                <p class="motto">「盡力就好，穩健前行。」期待未來能運用資訊與數據的力量，創造更多溫暖又實用的服務。</p>
-            </div>
-        </section>
-    </main>
-
-    <!-- =================================================================
-         頁尾（年份先寫死 2026，script.js 載入後會自動更新成今年）
-         ================================================================= -->
-    <footer class="footer">
-        <p>© <span id="year">2026</span> 董芸辰 Yun-Chen Dong. All Rights Reserved.</p>
-        <p class="sub">國立東華大學 資訊管理學系 碩士班</p>
+    <!-- Footer -->
+    <footer class="py-8 bg-cream-50 dark:bg-warmgray-900 border-t border-cream-200 dark:border-warmgray-800 text-center text-xs text-warmgray-600 dark:text-cream-300">
+        <div class="max-w-6xl mx-auto px-4">
+            <p>© <span id="year"></span> 董芸辰 Yun-Chen Dong. All Rights Reserved.</p>
+            <p class="mt-1 text-[11px] text-warmgray-600 dark:text-cream-300">國立東華大學 資訊管理學系 碩士班</p>
+        </div>
     </footer>
 
-    <!-- 自己的 JS：放在最後面，確保上面的 HTML 都載入了才執行 -->
-    <script src="./script.js"></script>
+    <script>
+        // Set year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('themeToggle');
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking link
+        document.querySelectorAll('#mobileMenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Skills Tab Filter Function
+        function switchSkillTab(category) {
+            const hardCards = document.querySelectorAll('.sk-hard');
+            const softCards = document.querySelectorAll('.sk-soft');
+            const btns = document.querySelectorAll('.skill-tab-btn');
+
+            // Reset buttons style
+            btns.forEach(b => {
+                b.className = "skill-tab-btn px-4 py-2 text-sm rounded-xl bg-cream-200 text-warmgray-700 dark:bg-warmgray-800 dark:text-cream-200 font-medium transition-all";
+            });
+
+            // Highlight active button
+            const activeBtn = document.getElementById(`btn-sk-${category}`);
+            if(activeBtn) {
+                activeBtn.className = "skill-tab-btn px-4 py-2 text-sm rounded-xl bg-warmgray-800 text-cream-50 dark:bg-cream-100 dark:text-warmgray-900 font-medium transition-all";
+            }
+
+            if (category === 'all') {
+                hardCards.forEach(c => c.style.display = 'block');
+                softCards.forEach(c => c.style.display = 'block');
+            } else if (category === 'hard') {
+                hardCards.forEach(c => c.style.display = 'block');
+                softCards.forEach(c => c.style.display = 'none');
+            } else if (category === 'soft') {
+                hardCards.forEach(c => c.style.display = 'none');
+                softCards.forEach(c => c.style.display = 'block');
+            }
+        }
+
+        // DIY Section Switcher
+        function switchDiy(tab) {
+            const contents = document.querySelectorAll('.diy-tab-content');
+            const btns = document.querySelectorAll('.diy-nav-btn');
+
+            contents.forEach(c => c.classList.add('hidden'));
+            btns.forEach(b => {
+                b.className = "diy-nav-btn px-5 py-2.5 rounded-xl bg-cream-200 text-warmgray-700 dark:bg-warmgray-700 dark:text-cream-200 text-xs font-semibold transition-all flex items-center gap-2";
+            });
+
+            const targetContent = document.getElementById(`diy-content-${tab}`);
+            const targetBtn = document.getElementById(`diy-btn-${tab}`);
+
+            if (targetContent) targetContent.classList.remove('hidden');
+            if (targetBtn) {
+                targetBtn.className = "diy-nav-btn px-5 py-2.5 rounded-xl bg-warmgray-800 text-cream-50 dark:bg-cream-100 dark:text-warmgray-900 text-xs font-semibold transition-all flex items-center gap-2";
+            }
+        }
+    </script>
 </body>
 </html>
