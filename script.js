@@ -1,190 +1,147 @@
-/* =========================================================
-   董芸辰 個人網站 — script.js
-   ========================================================= */
+/* ================================================================
+   董芸辰 個人網站 — script.js（互動加分功能）
+   ----------------------------------------------------------------
+   ※ 這個版本的網站「沒有 JS 也能正常使用」：
+     圖示、勾選清單、分頁切換、手機選單、評論分析都由 HTML + CSS 完成。
+   ※ 這支 JS 只負責以下加分功能：
+     1. 自動更新頁尾年份
+     2. 深色 / 淺色模式切換（並記住選擇）
+     3. 手機選單：點了連結後自動收起
+     4. 導覽列：往下捲時加陰影、標示目前所在區塊
+     5. 研究所期望清單：記住勾選狀態（重新整理後還在）
+   ※ 每個功能都包在 try...catch 裡，就算某一段出錯，也不會影響其他功能。
+   ================================================================ */
 
-/* ---------- 1. 圖示：用內嵌 SVG 取代 Font Awesome（不需外部套件） ---------- */
-const ICONS = {
-    moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
-    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-    bars: '<path d="M4 6h16M4 12h16M4 18h16"/>',
-    close: '<path d="M18 6 6 18M6 6l12 12"/>',
-    'arrow-down': '<path d="M12 5v14M19 12l-7 7-7-7"/>',
-    graduate: '<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>',
-    home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
-    list: '<path d="M10 6h11M10 12h11M10 18h11"/><path d="m3 6 1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/>',
-    compass: '<circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3z"/>',
-    hand: '<path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/>',
-    book: '<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
-    sprout: '<path d="M12 21v-10"/><path d="M12 11C12 7 9 4 4 4c0 4 3 7 8 7z"/><path d="M12 13c0-3 2.5-6 8-6 0 4-3 6-8 6z"/>',
-    code: '<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>',
-    pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
-    chart: '<path d="M3 3v18h18"/><path d="M7 16v-4M12 16V8M17 16v-7"/>',
-    chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
-    sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
-    bulb: '<path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/>',
-    'check-circle': '<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
-    leaf: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10z"/><path d="M2 21c0-3 1.9-5.4 5.2-6"/>',
-    sparkle: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
-    check: '<path d="M20 6 9 17l-5-5"/>',
-    microscope: '<path d="M6 18h8M3 22h18M14 22a7 7 0 1 0 0-14h-1M9 14h2M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2zM12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/>',
-    target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
-    cake: '<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1M2 21h20M7 8v3M12 8v3M17 8v3M7 4h.01M12 4h.01M17 4h.01"/>',
-    gem: '<path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20M12 22 8 9l3-6M12 22l4-13-3-6"/>',
-    laptop: '<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 20h20"/>',
-    film: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4"/>',
-    cookie: '<path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5h.01M16 15.5h.01M12 12h.01M11 17h.01M7 14h.01"/>',
-    shapes: '<path d="M8.3 10a.7.7 0 0 1-.6-1.1l3.7-6a.7.7 0 0 1 1.2 0l3.7 6a.7.7 0 0 1-.6 1.1z"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/>',
-    tv: '<rect x="2" y="7" width="20" height="15" rx="2"/><path d="m17 2-5 5-5-5"/>',
-    pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>'
-};
+(function () {
+    'use strict'; // 嚴格模式：幫忙抓出常見寫法錯誤
 
-function svgIcon(name) {
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[name] || '') + '</svg>';
-}
+    /* ------------------------------------------------------------
+       小工具：安全地讀寫瀏覽器儲存空間（localStorage）
+       有些情況（無痕模式、直接開本機檔案的某些瀏覽器）會禁止儲存，
+       用 try...catch 包起來，失敗時就安靜地略過。
+       ------------------------------------------------------------ */
+    var store = {
+        get: function (key) {
+            try { return window.localStorage.getItem(key); } catch (e) { return null; }
+        },
+        set: function (key, value) {
+            try { window.localStorage.setItem(key, value); } catch (e) { /* 無法儲存就略過 */ }
+        }
+    };
 
-function renderIcons(root = document) {
-    root.querySelectorAll('i[data-icon]').forEach(el => {
-        el.innerHTML = svgIcon(el.dataset.icon);
-    });
-}
-renderIcons();
+    /* ------------------------------------------------------------
+       1. 頁尾年份：自動換成今年
+       ------------------------------------------------------------ */
+    try {
+        var yearEl = document.getElementById('year');
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+    } catch (e) { console.warn('年份更新失敗：', e); }
 
-/* ---------- 小工具：安全讀寫 localStorage ---------- */
-const store = {
-    get(key) { try { return localStorage.getItem(key); } catch (e) { return null; } },
-    set(key, val) { try { localStorage.setItem(key, val); } catch (e) { /* 無法儲存時忽略 */ } }
-};
+    /* ------------------------------------------------------------
+       2. 深色 / 淺色模式
+       - 預設跟隨電腦／手機的系統設定
+       - 按右上角按鈕後，在 <html> 加上 data-theme="dark" 或 "light"
+         （style.css 會依照這個屬性換顏色）
+       - 選擇會存起來，下次打開網站時沿用
+       ------------------------------------------------------------ */
+    try {
+        var root = document.documentElement; // 就是 <html> 元素
+        var saved = store.get('yc-theme');
+        if (saved === 'dark' || saved === 'light') {
+            root.setAttribute('data-theme', saved);
+        }
 
-/* ---------- 2. 年份 ---------- */
-document.getElementById('year').textContent = new Date().getFullYear();
+        // 判斷「現在」是不是深色
+        var isDark = function () {
+            var t = root.getAttribute('data-theme');
+            if (t) return t === 'dark';
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        };
 
-/* ---------- 3. 深色 / 淺色模式（會記住你的選擇） ---------- */
-const root = document.documentElement;
-const savedTheme = store.get('yc-theme');
-if (savedTheme === 'dark' || savedTheme === 'light') root.dataset.theme = savedTheme;
+        var themeBtn = document.getElementById('themeToggle');
+        if (themeBtn) {
+            themeBtn.addEventListener('click', function () {
+                var next = isDark() ? 'light' : 'dark';
+                root.setAttribute('data-theme', next);
+                store.set('yc-theme', next);
+            });
+        }
+    } catch (e) { console.warn('深色模式設定失敗：', e); }
 
-function isDark() {
-    if (root.dataset.theme) return root.dataset.theme === 'dark';
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
-
-document.getElementById('themeToggle').addEventListener('click', () => {
-    const next = isDark() ? 'light' : 'dark';
-    root.dataset.theme = next;
-    store.set('yc-theme', next);
-});
-
-/* ---------- 4. 手機版選單 ---------- */
-const menuBtn = document.getElementById('mobileMenuBtn');
-const mobileMenu = document.getElementById('mobileMenu');
-
-function setMenu(open) {
-    mobileMenu.hidden = !open;
-    menuBtn.setAttribute('aria-expanded', String(open));
-    menuBtn.querySelector('i').dataset.icon = open ? 'close' : 'bars';
-    renderIcons(menuBtn);
-}
-menuBtn.addEventListener('click', () => setMenu(mobileMenu.hidden));
-mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
-
-/* ---------- 5. 導覽列：捲動陰影 + 目前所在區塊高亮 ---------- */
-const navbar = document.getElementById('navbar');
-const navLinks = document.querySelectorAll('.nav-links a');
-const sections = ['about', 'skills', 'research', 'diy', 'contact']
-    .map(id => document.getElementById(id));
-
-function onScroll() {
-    navbar.classList.toggle('scrolled', window.scrollY > 8);
-
-    let current = '';
-    const line = window.innerHeight * 0.35;
-    sections.forEach(sec => {
-        if (sec.getBoundingClientRect().top <= line) current = sec.id;
-    });
-    navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
-}
-window.addEventListener('scroll', onScroll, { passive: true });
-onScroll();
-
-/* ---------- 共用：分頁按鈕切換樣式 ---------- */
-function activateTab(buttons, activeBtn) {
-    buttons.forEach(b => {
-        const on = b === activeBtn;
-        b.classList.toggle('active', on);
-        b.setAttribute('aria-selected', String(on));
-    });
-}
-
-/* ---------- 6. 技能篩選 ---------- */
-const skillBtns = document.querySelectorAll('[data-skill]');
-const skillCards = document.querySelectorAll('.skill-card');
-
-skillBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const cat = btn.dataset.skill;
-        activateTab(skillBtns, btn);
-        skillCards.forEach(card => {
-            const show = cat === 'all' || card.dataset.cat === cat;
-            card.dataset.hide = String(!show);
-            if (show) {
-                card.classList.remove('fade-in');
-                void card.offsetWidth; // 重新觸發動畫
-                card.classList.add('fade-in');
-            }
+    /* ------------------------------------------------------------
+       3. 手機選單：點了選單裡的連結後，自動把選單收起來
+       （開關本身是 checkbox，由 CSS 控制；這裡只是把它取消勾選）
+       ------------------------------------------------------------ */
+    try {
+        var navToggle = document.getElementById('navToggle');
+        var menuLinks = document.querySelectorAll('#mobileMenu a');
+        for (var i = 0; i < menuLinks.length; i++) {
+            menuLinks[i].addEventListener('click', function () {
+                if (navToggle) navToggle.checked = false;
+            });
+        }
+        // 螢幕變寬（例如手機轉橫向）時，也把選單收起來
+        window.addEventListener('resize', function () {
+            if (navToggle && window.innerWidth >= 768) navToggle.checked = false;
         });
-    });
-});
+    } catch (e) { console.warn('手機選單設定失敗：', e); }
 
-/* ---------- 7. 手作分頁 ---------- */
-const diyBtns = document.querySelectorAll('[data-diy]');
-const diyPanels = document.querySelectorAll('.diy-panel');
+    /* ------------------------------------------------------------
+       4. 導覽列效果
+       - 往下捲超過 8px：導覽列加上陰影（.scrolled）
+       - 捲到哪個區塊，上方對應的選單文字就變綠色並加底線（.active）
+       ------------------------------------------------------------ */
+    try {
+        var navbar = document.getElementById('navbar');
+        var navLinks = document.querySelectorAll('.nav-links a');
+        var sectionIds = ['about', 'skills', 'research', 'diy', 'contact'];
+        var sections = [];
+        for (var s = 0; s < sectionIds.length; s++) {
+            var el = document.getElementById(sectionIds[s]);
+            if (el) sections.push(el);
+        }
 
-diyBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        activateTab(diyBtns, btn);
-        diyPanels.forEach(p => {
-            const show = p.id === 'diy-' + btn.dataset.diy;
-            p.hidden = !show;
-            if (show) {
-                p.classList.remove('fade-in');
-                void p.offsetWidth;
-                p.classList.add('fade-in');
+        var onScroll = function () {
+            if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 8);
+
+            // 找出「最後一個頂端已經捲過畫面 35% 位置」的區塊
+            var current = '';
+            var line = window.innerHeight * 0.35;
+            for (var k = 0; k < sections.length; k++) {
+                if (sections[k].getBoundingClientRect().top <= line) current = sections[k].id;
             }
-        });
-    });
-});
+            // 捲到最底部時，強制標示最後一個區塊（聯絡方式）
+            if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2 && sections.length) {
+                current = sections[sections.length - 1].id;
+            }
 
-/* ---------- 8. 研究所目標清單：可以打勾（會記住） ---------- */
-const goalBtns = document.querySelectorAll('.goal-check');
-let goalState = [];
-try { goalState = JSON.parse(store.get('yc-goals') || '[]'); } catch (e) { goalState = []; }
+            for (var n = 0; n < navLinks.length; n++) {
+                var href = navLinks[n].getAttribute('href');
+                navLinks[n].classList.toggle('active', href === '#' + current);
+            }
+        };
 
-function paintGoal(btn, done) {
-    btn.setAttribute('aria-pressed', String(done));
-    btn.innerHTML = done ? '<i data-icon="check"></i>' : '';
-    if (done) renderIcons(btn);
-}
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll(); // 一打開頁面就先執行一次
+    } catch (e) { console.warn('導覽列效果設定失敗：', e); }
 
-goalBtns.forEach((btn, i) => {
-    paintGoal(btn, !!goalState[i]);
-    btn.addEventListener('click', () => {
-        const done = btn.getAttribute('aria-pressed') !== 'true';
-        paintGoal(btn, done);
-        goalState[i] = done;
-        store.set('yc-goals', JSON.stringify(goalState));
-    });
-});
+    /* ------------------------------------------------------------
+       5. 研究所期望清單：記住勾選狀態
+       （勾選本身是原生 checkbox，不靠 JS 也能勾；這裡只負責「記住」）
+       ------------------------------------------------------------ */
+    try {
+        var goals = document.querySelectorAll('.goal-input');
+        var state = {};
+        try { state = JSON.parse(store.get('yc-goals') || '{}') || {}; } catch (e) { state = {}; }
 
-/* ---------- 9. 評論分析示意 ---------- */
-const reviewBtn = document.getElementById('reviewToggle');
-const reviewText = document.getElementById('reviewText');
-const aspects = document.getElementById('aspects');
+        for (var g = 0; g < goals.length; g++) {
+            var box = goals[g];
+            if (state[box.id]) box.checked = true; // 還原上次的勾選
 
-reviewBtn.addEventListener('click', () => {
-    const on = !reviewText.classList.contains('analyzed');
-    reviewText.classList.toggle('analyzed', on);
-    aspects.hidden = !on;
-    reviewBtn.setAttribute('aria-pressed', String(on));
-    reviewBtn.textContent = on ? '隱藏分析結果' : '顯示分析結果';
-});
+            box.addEventListener('change', function (ev) {
+                state[ev.target.id] = ev.target.checked;
+                store.set('yc-goals', JSON.stringify(state));
+            });
+        }
+    } catch (e) { console.warn('勾選清單設定失敗：', e); }
+})();
